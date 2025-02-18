@@ -75,7 +75,7 @@ fun ItemCard(item: String)
 
 }
 
-@Preview
+//@Preview
 @Composable
 fun ItemListScreenPreview()
 {
