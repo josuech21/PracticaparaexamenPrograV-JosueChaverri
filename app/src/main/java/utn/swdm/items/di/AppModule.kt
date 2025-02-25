@@ -4,8 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import utn.swdm.items.repository.ItemRepository
-import utn.swdm.items.repository.ItemRepositoryImp
+import utn.swdm.items.data.database.repository.ItemRepositoryImp
 import javax.inject.Singleton
 
 
