@@ -1,37 +1,57 @@
 package utn.swdm.items.viewmodel
 
-import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import utn.swdm.items.data.database.model.Item
-import utn.swdm.items.data.database.repository.ItemRepository
+import utn.swdm.items.repository.ItemRepository
+import javax.inject.Inject
 
 @HiltViewModel
 class ItemViewModel @Inject constructor(
     private val repository: ItemRepository
-) : ViewModel()
-{
-    val allItems: LiveData<List<Item>> get() = repository.getAllItem()
+) : ViewModel() {
 
-    fun insert(item: Item) = viewModelScope
-        .launch{
-            repository.insert(item)
+    // Estado privado para la lista de ítems
+    private val _items = MutableStateFlow<List<Item>>(emptyList())
+    val items: StateFlow<List<Item>> get() = _items.asStateFlow()
+
+    init {
+        // Cargar los ítems cuando se crea el ViewModel
+        loadItems()
+    }
+
+    // Cargar los ítems desde el repositorio
+     fun loadItems() {
+        viewModelScope.launch {
+            repository.getAllItems().collect { items ->
+                _items.value = items
+            }
         }
-    fun update(item: Item) = viewModelScope.launch{
-        repository.update(item)
-    }
-    fun deleteItem(item: Item) = viewModelScope.launch {
-        repository.delete(item)
-    }
-    fun deleteAll() = viewModelScope.launch {
-        repository.deleteAll()
     }
 
+    // Agregar un ítem
+    fun addItem(item: Item) {
+        viewModelScope.launch {
+            repository.addItem(item)
+        }
+    }
 
+    // Eliminar un ítem
+    fun deleteItem(itemId: Long) {
+        viewModelScope.launch {
+            repository.deleteItem(itemId)
+        }
+    }
+
+    // Actualizar el estado de selección de un ítem
+    fun updateItemSelection(itemId: Long, isSelected: Boolean) {
+        viewModelScope.launch {
+            repository.updateItemSelection(itemId, isSelected)
+        }
+    }
 }
